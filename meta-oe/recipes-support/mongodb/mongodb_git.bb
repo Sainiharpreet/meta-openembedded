@@ -3,7 +3,7 @@ LICENSE = "AGPL-3.0 & Apache-2.0"
 LIC_FILES_CHKSUM = "file://GNU-AGPL-3.0.txt;md5=73f1eb20517c55bf9493b7dd6e480788 \
                     file://APACHE-2.0.txt;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-DEPENDS = "openssl libpcre boost libpcap"
+DEPENDS = "glibc openssl libpcre boost libpcap"
 # Mongo uses tcmalloc on x86_64, which is provided by gperftools
 DEPENDS_append_x86-64 = " gperftools"
 
@@ -14,7 +14,7 @@ inherit scons
 # | scons: *** [build/linux2/disable-scripting/ld_arm-oe-linux-gnueabi-g++/ssl/use-system-boost/use-system-pcre/use-system-tcmalloc/mongo/mongod] Error 1
 # | scons: building terminated because of errors.
 # | ERROR: scons build execution failed.
-PNBLACKLIST[mongodb] ?= "Fails to build with system boost"
+#PNBLACKLIST[mongodb] ?= "Fails to build with system boost"
 
 PV = "2.6.0+git${SRCPV}"
 SRCREV = "be1905c24c7e5ea258e537fbf0d2c502c4fc6de2"
@@ -30,15 +30,12 @@ S = "${WORKDIR}/git"
 
 export OE_TARGET_ARCH="${TARGET_ARCH}"
 
-EXTRA_OESCONS = "--prefix=${D}${prefix} \
+EXTRA_OESCONS = "sysroot=${STAGING_DIR_TARGET} \
+                 --prefix=${D}${prefix} \
                  --propagate-shell-environment \
                  --cc-use-shell-environment \
                  --cxx-use-shell-environment \
-                 --ld='${TARGET_PREFIX}g++' \
                  --ssl \
-                 --use-system-pcre \ 
-                 --use-system-boost \
-                 --use-system-tcmalloc \
                  --disable-scripting \
                  --nostrip \
                  mongod mongos"
